@@ -42,6 +42,7 @@ class City {
 		void setName(std::string name) {
 			this->name = name;
 		}
+
 };
 
 
