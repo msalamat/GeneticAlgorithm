@@ -1,19 +1,21 @@
 #include <iostream>
 #include <random>
 #include <algorithm>
+#include <set>
 
 #include "City.hpp"
 #include "Tour.hpp"
 
 
-bool cmp(Tour t1, Tour t2) {
+bool cmp(const Tour& t1, const Tour& t2) {
 	return t1.fitness_level > t2.fitness_level;
 }
 
-Tour makeBaby(Tour p1, Tour p2) {
+Tour makeBaby(const Tour& p1, const Tour& p2) {
 	std::random_device rd;
 	std::mt19937 gen( rd() );
 	std::uniform_int_distribution<> dis(0, 29);
+
 	int randNum = dis(gen);
 	std::vector<City*> baby;
 
@@ -23,15 +25,22 @@ Tour makeBaby(Tour p1, Tour p2) {
 
 	int i = 0;
 
-	while (baby.size() != 30) {
-		if(std::find(baby.begin(), baby.end(), p2.tour.at(i++)) != baby.end()) {
-			/* v contains x */
+//	while (baby.size() != 30) { // TODO make into for loop afterwards
+//		if(std::find(baby.begin(), baby.begin()+randNum, p2.tour.at(i)) != baby.end()) {
+//			baby.push_back(p2.tour.at(i));
+//		}
+//		++i;
+//	}
 
-
-		} else {
-			/* v does not contain x */
+	for (int i = 0; baby.size() != p1.tour.size(); ++i) {
+		if (std::find(baby.begin(), baby.end(), p2.tour.at(i)) == baby.end()) {
+			baby.push_back(p2.tour.at(i));
 		}
 	}
+
+	Tour babyTour{baby};
+
+	return babyTour;
 }
 
 int main() {
@@ -73,42 +82,59 @@ int main() {
 		tourList.push_back(tour);
 	}
 
-	// compute fitness level for each one
 	for (auto &i : tourList) {
 		i.computeFitnessLevel();
 	}
 
-	// get the top fitness guy
-//	auto eliteGuy1 = std::max_element(tourList.begin(), tourList.end(), [](const auto& champion, const auto& challenger) {
+	// this dont work bro
+//	auto eliteGuy = std::max_element(tourList.begin(), tourList.end(), [](const auto& champion, const auto& challenger) {
 //		return challenger.fitness_level > champion.fitness_level;
 //	});
-
 
 	// sort the tour list. Now the top five are fittest tours
 	std::sort(tourList.begin(), tourList.end(), cmp);
 
-	std::vector<Tour> eliteGeneration{5};
-	std::copy(tourList.begin(), tourList.begin()+5, eliteGeneration.begin());
+	std::uniform_int_distribution<> dis3(0, 29);
 
-	// 1. now crossover the top elite peeps
-	std::vector<Tour> newGeneration{30};
-	std::copy(eliteGeneration.begin(), eliteGeneration.begin()+5, newGeneration.begin());
-	int i = 0;
+	std::vector<Tour> parents;
+	std::vector<Tour> newGeneration;
 
-	std::uniform_int_distribution<> dis2(0, static_cast<int>(eliteGeneration.size()-1));
-	std::cout << dis2(gen);
+	newGeneration.push_back(tourList.at(0));
 
-	while (newGeneration.size() != 30) {
-		int parent1 = dis2(gen), parent2;
+	std::set<int> numbersAsSet;
 
-		do {
-			parent2 = dis2(gen);
-		} while (parent2 == parent1);
+	std::uniform_int_distribution<> dis2(1, 29);
 
-		Tour baby = makeBaby(eliteGeneration.at(parent1), eliteGeneration.at(parent2));
-		newGeneration.push_back(baby);
+	while (numbersAsSet.size() != 5) {
+		numbersAsSet.insert(dis2(gen));
 	}
 
+	for (auto i = numbersAsSet.begin(); i != numbersAsSet.end(); ++i) {
+		parents.push_back(tourList.at(*i));
+	}
+
+	while (newGeneration.size() != 30) {
+
+		std::uniform_int_distribution<> dis4(0, 4);
+
+		int randomParent1 = dis4(gen), randomParent2;
+
+		do {
+			randomParent2 = dis4(gen);
+		} while (randomParent1 == randomParent2);
+
+		Tour& parent1 = parents.at(randomParent1);
+		Tour& parent2 = parents.at(randomParent2);
+
+		Tour baby = makeBaby(parent1, parent2);
+		newGeneration.push_back(baby);
+	}
+	
+	std::sort(newGeneration.begin(), newGeneration.end(), cmp);
+
+	for (auto &i : newGeneration) {
+		i.computeFitnessLevel();
+	}
 
 	return 0;
 }
