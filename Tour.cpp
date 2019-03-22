@@ -23,7 +23,8 @@ void Tour::computeFitnessLevel() {
 
 	}
 
-	this->fitness_level = (1 / distance) * 100000;
+	this->fitness_level = (1 / distance) * 1000000;
+	//this->fitness_level = distance;
 
 	//std::cout << "fitness " << fitness_level << std::endl;
 }
