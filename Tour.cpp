@@ -1,16 +1,12 @@
 //
-// Created by Mohammad Salamat on 2019-03-13.
+// Created by Mohammad Salamat on 2019-03-24.
 //
 
-#include <iostream>
-#include <cmath>
 #include "Tour.hpp"
 
 void Tour::computeFitnessLevel() {
 	double distance = 0;
 	double x1, x2, y1, y2;
-
-	// std::cout << "distance: " << std::endl;
 
 	for (auto it = tour.begin(); it != tour.end()-1;) {
 		x1 = (*it)->getX();
@@ -20,11 +16,8 @@ void Tour::computeFitnessLevel() {
 		y2 = (*it)->getY();
 		distance += sqrt( pow((x2 - x1), 2) + pow((y2 - y1), 2) );
 		//std::cout << distance << " ( (" <<x1<<"," <<y1<<") -> (" <<x2 <<","<<y2<<  ") )" << std::endl;
-
 	}
 
 	this->fitness_level = (1 / distance) * 1000000;
-	//this->fitness_level = distance;
 
-	//std::cout << "fitness " << fitness_level << std::endl;
 }
